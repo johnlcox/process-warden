@@ -1,3 +1,9 @@
+# Eclipse Files #
+.classpath
+.project
+.settings
+target
+
 *.class
 
 # Package Files #
