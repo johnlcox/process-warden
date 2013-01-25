@@ -90,7 +90,7 @@ public class FinalizedProcessBuilder {
 	 *            a string array containing the program and its arguments
 	 *            (cannot be null)
 	 * @throws NullPointerException
-	 *             of command is null
+	 *             if command is null
 	 */
 	public FinalizedProcessBuilder(String... command) {
 		if (command == null) {
