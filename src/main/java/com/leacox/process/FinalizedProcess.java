@@ -26,8 +26,28 @@ import java.util.TimerTask;
 /**
  * A {@link Closeable} wrapper for {@link Process} for running a native process.
  * 
+ * <p>
+ * This wrapper provides some additional functionality around {@code Process}
+ * for some of the gotchas and common pitfalls with using {@code Process}.
+ * 
+ * <ul>
+ * 
+ * <li>It implements {@link Closeable}. The {@link #close()} method will make
+ * sure that all of the processes' streams are closed, and if the
+ * {@code keepProcess} flag was not set, the process is destroyed via
+ * {@link Process#destroy()}.</li>
+ * 
+ * <li>It provides the {@link #waitFor(int)} method that invokes
+ * {@link Process#waitFor()} with a timeout period. If the process execution
+ * takes longer than the timeout, then the thread is interrupted. This method
+ * also makes sure that the thread interrupt flag is cleared</li>
+ * 
+ * </ul
  * 
  * @author John Leacox
+ * @see Process
+ * @see FinalizedProcessBuilder
+ * @see ProcessBuilder
  * 
  */
 public class FinalizedProcess implements Closeable {
@@ -41,6 +61,39 @@ public class FinalizedProcess implements Closeable {
 
 		this.process = process;
 		this.keepProcess = keepProcess;
+	}
+
+	public void destroy() {
+		process.destroy();
+	}
+
+	public int exitValue() {
+		return process.exitValue();
+	}
+
+	public InputStream getErrorStream() {
+		return process.getErrorStream();
+	}
+
+	public InputStream getInputStream() {
+		return process.getInputStream();
+	}
+
+	public OutputStream getOutputStream() {
+		return process.getOutputStream();
+	}
+
+	public int waitFor(int timeoutMilliseconds) throws InterruptedException {
+		Timer timer = null;
+		try {
+			timer = new Timer(true);
+			InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
+			timer.schedule(interrupter, timeoutMilliseconds);
+			return process.waitFor();
+		} finally {
+			timer.cancel();
+			Thread.interrupted();
+		}
 	}
 
 	@Override
@@ -65,39 +118,6 @@ public class FinalizedProcess implements Closeable {
 				process.destroy();
 			}
 		}
-	}
-
-	public OutputStream getOutputStream() {
-		return process.getOutputStream();
-	}
-
-	public InputStream getInputStream() {
-		return process.getInputStream();
-	}
-
-	public InputStream getErrorStream() {
-		return process.getErrorStream();
-	}
-
-	public int waitFor(int timeoutMilliseconds) throws InterruptedException {
-		Timer timer = null;
-		try {
-			timer = new Timer(true);
-			InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
-			timer.schedule(interrupter, timeoutMilliseconds);
-			return process.waitFor();
-		} finally {
-			timer.cancel();
-			Thread.interrupted();
-		}
-	}
-
-	public int exitValue() {
-		return process.exitValue();
-	}
-
-	public void destroy() {
-		process.destroy();
 	}
 
 	private static class InterruptTimerTask extends TimerTask {
