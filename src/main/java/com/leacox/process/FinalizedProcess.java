@@ -44,6 +44,31 @@ import java.util.TimerTask;
  * 
  * </ul
  * 
+ * <p>
+ * Here is a basic example of using this class:
+ * 
+ * <pre>
+ * {@code
+ * FinalizedProcessBuilder pb = new FinalizedProcessBuilder("myCommand", "myArg");
+ * FinalizedProcess process = pb.start();
+ * try {
+ * 	int returnVal = process.waitFor(5000);
+ * } finally {
+ * 	process.close();
+ * }
+ * </pre>
+ * 
+ * <p>
+ * If running on Java 7, try-with-resource can be used:
+ * 
+ * <pre>
+ * {@code
+ * FinalizedProcessBuilder pb = new FinalizedProcessBuilder("myCommand", "myArg");
+ * try(FinalizedProcess process = pb.start()) {
+ * 	int returnVal = process.waitFor(5000);
+ * }
+ * </pre>
+ * 
  * @author John Leacox
  * @see Process
  * @see FinalizedProcessBuilder
@@ -183,17 +208,23 @@ public class FinalizedProcess implements Closeable {
 	public void close() throws IOException {
 		if (process != null) {
 			try {
-				process.getErrorStream().close();
+				if (process.getErrorStream() != null) {
+					process.getErrorStream().close();
+				}
 			} catch (IOException e) {
 			}
 
 			try {
-				process.getInputStream().close();
+				if (process.getInputStream() != null) {
+					process.getInputStream().close();
+				}
 			} catch (IOException e) {
 			}
 
 			try {
-				process.getOutputStream().close();
+				if (process.getOutputStream() != null) {
+					process.getOutputStream().close();
+				}
 			} catch (IOException e) {
 			}
 

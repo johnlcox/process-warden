@@ -17,12 +17,18 @@
 package com.leacox.process;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.Test;
+import org.omg.CORBA.portable.OutputStream;
 
 /**
  * Unit tests for {@link FinalizedProcess}.
@@ -101,5 +107,115 @@ public class FinalizedProcessTest {
 		fp.getOutputStream();
 
 		verify(mockProcess).getOutputStream();
+	}
+
+	@Test
+	public void testWaitForThrowsIllegalargumentExceptionForNegativeTimeout() throws IOException, InterruptedException {
+		FinalizedProcessBuilder fpb = new FinalizedProcessBuilder("/bin/sh", "-c", "exit 0");
+
+		FinalizedProcess fp = fpb.start();
+		try {
+			fp.waitFor(-1000);
+			fail("Expected IllegalArgumentException");
+		} catch (IllegalArgumentException e) {
+		} finally {
+			fp.close();
+		}
+	}
+
+	@Test
+	public void testWaitForThrowsIllegalargumentExceptionForZeroTimeout() throws IOException, InterruptedException {
+		FinalizedProcessBuilder fpb = new FinalizedProcessBuilder("/bin/sh", "-c", "exit 0");
+
+		FinalizedProcess fp = fpb.start();
+		try {
+			fp.waitFor(0);
+			fail("Expected IllegalArgumentException");
+		} catch (IllegalArgumentException e) {
+		} finally {
+			fp.close();
+		}
+	}
+
+	@Test
+	public void waitFor() throws IOException, InterruptedException {
+		FinalizedProcessBuilder fpb = new FinalizedProcessBuilder("/bin/sh", "-c", "exit 0");
+
+		FinalizedProcess fp = fpb.start();
+		try {
+			assertEquals(0, fp.waitFor(1000));
+		} finally {
+			fp.close();
+		}
+	}
+
+	@Test
+	public void waitForTimeout() throws IOException {
+		FinalizedProcessBuilder fpb = new FinalizedProcessBuilder("/bin/sh");
+
+		FinalizedProcess fp = fpb.start();
+		try {
+			assertEquals(0, fp.waitFor(100));
+			fail("Expected InterruptedException");
+		} catch (InterruptedException e) {
+		} finally {
+			fp.close();
+		}
+	}
+
+	@Test
+	public void waitForTimeoutClearsInterruptedFlag() throws IOException {
+		FinalizedProcessBuilder fpb = new FinalizedProcessBuilder("/bin/sh");
+
+		FinalizedProcess fp = fpb.start();
+		try {
+			assertEquals(0, fp.waitFor(100));
+			fail("Expected InterruptedException");
+		} catch (InterruptedException e) {
+		} finally {
+			fp.close();
+		}
+
+		assertFalse(Thread.interrupted());
+	}
+
+	@Test
+	public void testCloseClosesStreamsAndDestroysProcess() throws IOException, InterruptedException {
+		InputStream mockInputStream = mock(InputStream.class);
+		InputStream mockErrorStream = mock(InputStream.class);
+		OutputStream mockOutputStream = mock(OutputStream.class);
+
+		Process mockProcess = mock(Process.class);
+		when(mockProcess.getInputStream()).thenReturn(mockInputStream);
+		when(mockProcess.getErrorStream()).thenReturn(mockErrorStream);
+		when(mockProcess.getOutputStream()).thenReturn(mockOutputStream);
+
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, false);
+		fp.close();
+
+		verify(mockInputStream).close();
+		verify(mockErrorStream).close();
+		verify(mockOutputStream).close();
+		verify(mockProcess).destroy();
+	}
+
+	@Test
+	public void testCloseDoesNotDestroyProcessWithKeepProcessFlag() throws IOException, InterruptedException {
+		InputStream mockInputStream = mock(InputStream.class);
+		InputStream mockErrorStream = mock(InputStream.class);
+		OutputStream mockOutputStream = mock(OutputStream.class);
+
+		Process mockProcess = mock(Process.class);
+		when(mockProcess.getInputStream()).thenReturn(mockInputStream);
+		when(mockProcess.getErrorStream()).thenReturn(mockErrorStream);
+		when(mockProcess.getOutputStream()).thenReturn(mockOutputStream);
+
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, true);
+		fp.close();
+
+		verify(mockInputStream).close();
+		verify(mockErrorStream).close();
+		verify(mockOutputStream).close();
+		verify(mockProcess, never()).destroy();
 	}
 }
