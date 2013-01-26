@@ -1,8 +1,25 @@
+/*
+ * Copyright 2013 John Leacox
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. 
+ */
+
 package com.leacox.process;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class wraps {@link ProcessBuilder} for creating operating system
@@ -100,6 +117,17 @@ public class FinalizedProcessBuilder {
 	}
 
 	/**
+	 * Returns this process builder's operating system program and arguments.
+	 * The returned list is <i>not</i> a copy. Subsequent updates to the list
+	 * will be reflected in the state of this process builder.
+	 * 
+	 * @return this process builder's program and its arguments
+	 */
+	public List<String> command() {
+		return processBuilder.command();
+	}
+
+	/**
 	 * Sets this process builder's operating system program and arguments. This
 	 * method does <i>not</i> make a copy of the {@code command} list.
 	 * Subsequent updates to the list will be reflected in the state of the
@@ -141,18 +169,150 @@ public class FinalizedProcessBuilder {
 		return this;
 	}
 
-	public FinalizedProcessBuilder redirectErrorStream(boolean redirectErrorStream) {
-		processBuilder.redirectErrorStream(redirectErrorStream);
-		return this;
+	/**
+	 * Returns this process builder's working directory.
+	 * 
+	 * Subprocesses subsequently started by this object's {@link #start()}
+	 * method will use this as their working directory. The returned value may
+	 * be {@code null} -- this means to use the working directory of the current
+	 * Java process, usually the directory named by the system property
+	 * {@code user.dir}, as the working directory of the child process.
+	 * 
+	 * @return this process builder's working directory
+	 */
+	public File directory() {
+		return processBuilder.directory();
 	}
 
+	/**
+	 * Sets this process builder's working directory.
+	 * 
+	 * Subprocesses subsequently started by this object's {@link #start()}
+	 * method will use this as their working directory. The argument may be
+	 * {@code null} -- this means to use the working directory of the current
+	 * Java process, usually the directory named by the system property
+	 * {@code user.dir}, as the working directory of the child process.
+	 * 
+	 * @param directory
+	 *            the new working directory
+	 * @return this process builder
+	 */
 	public FinalizedProcessBuilder directory(File file) {
 		processBuilder.directory(file);
 		return this;
 	}
 
-	public FinalizedProcessBuilder inheritIO() {
-		processBuilder.inheritIO();
+	/**
+	 * Returns a string map view of this process builder's environment.
+	 * 
+	 * Whenever a process builder is created, the environment is initialized to
+	 * a copy of the current process environment (see {@link System#getenv()}).
+	 * Subprocesses subsequently started by this object's {@link #start()}
+	 * method will use this map as their environment.
+	 * 
+	 * <p>
+	 * The returned object may be modified using ordinary {@link java.util.Map
+	 * Map} operations. These modifications will be visible to subprocesses
+	 * started via the {@link #start()} method. Two {@code ProcessBuilder}
+	 * instances always contain independent process environments, so changes to
+	 * the returned map will never be reflected in any other
+	 * {@code ProcessBuilder} instance or the values returned by
+	 * {@link System#getenv System.getenv}.
+	 * 
+	 * <p>
+	 * If the system does not support environment variables, an empty map is
+	 * returned.
+	 * 
+	 * <p>
+	 * The returned map does not permit null keys or values. Attempting to
+	 * insert or query the presence of a null key or value will throw a
+	 * {@link NullPointerException}. Attempting to query the presence of a key
+	 * or value which is not of type {@link String} will throw a
+	 * {@link ClassCastException}.
+	 * 
+	 * <p>
+	 * The behavior of the returned map is system-dependent. A system may not
+	 * allow modifications to environment variables or may forbid certain
+	 * variable names or values. For this reason, attempts to modify the map may
+	 * fail with {@link UnsupportedOperationException} or
+	 * {@link IllegalArgumentException} if the modification is not permitted by
+	 * the operating system.
+	 * 
+	 * <p>
+	 * Since the external format of environment variable names and values is
+	 * system-dependent, there may not be a one-to-one mapping between them and
+	 * Java's Unicode strings. Nevertheless, the map is implemented in such a
+	 * way that environment variables which are not modified by Java code will
+	 * have an unmodified native representation in the subprocess.
+	 * 
+	 * <p>
+	 * The returned map and its collection views may not obey the general
+	 * contract of the {@link Object#equals} and {@link Object#hashCode}
+	 * methods.
+	 * 
+	 * <p>
+	 * The returned map is typically case-sensitive on all platforms.
+	 * 
+	 * <p>
+	 * If a security manager exists, its {@link SecurityManager#checkPermission
+	 * checkPermission} method is called with a {@link RuntimePermission}
+	 * {@code ("getenv.*")} permission. This may result in a
+	 * {@link SecurityException} being thrown.
+	 * 
+	 * <p>
+	 * When passing information to a Java subprocess, <a
+	 * href=System.html#EnvironmentVSSystemProperties>system properties</a> are
+	 * generally preferred over environment variables.
+	 * 
+	 * @return this process builder's environment
+	 * 
+	 * @throws SecurityException
+	 *             if a security manager exists and its
+	 *             {@link SecurityManager#checkPermission checkPermission}
+	 *             method doesn't allow access to the process environment
+	 * 
+	 * @see Runtime#exec(String[],String[],java.io.File)
+	 * @see System#getenv()
+	 */
+	public Map<String, String> environment() {
+		return processBuilder.environment();
+	}
+
+	/**
+	 * Tells whether this process builder merges standard error and standard
+	 * output.
+	 * 
+	 * <p>
+	 * If this property is {@code true}, then any error output generated by
+	 * subprocesses subsequently started by this object's {@link #start()}
+	 * method will be merged with the standard output, so that both can be read
+	 * using the {@link Process#getInputStream()} method. This makes it easier
+	 * to correlate error messages with the corresponding output. The initial
+	 * value is {@code false}.
+	 * 
+	 * @return this process builder's {@code redirectErrorStream} property
+	 */
+	public boolean redirectErrorStream() {
+		return processBuilder.redirectErrorStream();
+	}
+
+	/**
+	 * Sets this process builder's {@code redirectErrorStream} property.
+	 * 
+	 * <p>
+	 * If this property is {@code true}, then any error output generated by
+	 * subprocesses subsequently started by this object's {@link #start()}
+	 * method will be merged with the standard output, so that both can be read
+	 * using the {@link Process#getInputStream()} method. This makes it easier
+	 * to correlate error messages with the corresponding output. The initial
+	 * value is {@code false}.
+	 * 
+	 * @param redirectErrorStream
+	 *            the new property value
+	 * @return this process builder
+	 */
+	public FinalizedProcessBuilder redirectErrorStream(boolean redirectErrorStream) {
+		processBuilder.redirectErrorStream(redirectErrorStream);
 		return this;
 	}
 
