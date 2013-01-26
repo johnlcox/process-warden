@@ -16,7 +16,7 @@ try {
 If running on Java 7, try-with-resources can be used:
 ``` java
 FinalizedProcessBuilder pb = new FinalizedProcessBuilder("myCommand", "myArg");
-try(FinalizedProcess process = pb.start()) {
+try (FinalizedProcess process = pb.start()) {
   int returnVal = process.waitFor(5000);
 }
 ```

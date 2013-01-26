@@ -59,12 +59,12 @@ import java.util.TimerTask;
  * </pre>
  * 
  * <p>
- * If running on Java 7, try-with-resource can be used:
+ * If running on Java 7, try-with-resources can be used:
  * 
  * <pre>
  * {@code
  * FinalizedProcessBuilder pb = new FinalizedProcessBuilder("myCommand", "myArg");
- * try(FinalizedProcess process = pb.start()) {
+ * try (FinalizedProcess process = pb.start()) {
  * 	int returnVal = process.waitFor(5000);
  * }
  * </pre>
