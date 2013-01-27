@@ -255,12 +255,10 @@ public class FinalizedProcessBuilder {
 	 * generally preferred over environment variables.
 	 * 
 	 * @return this process builder's environment
-	 * 
 	 * @throws SecurityException
 	 *             if a security manager exists and its
 	 *             {@link SecurityManager#checkPermission checkPermission}
 	 *             method doesn't allow access to the process environment
-	 * 
 	 * @see Runtime#exec(String[],String[],java.io.File)
 	 * @see System#getenv()
 	 */
@@ -307,18 +305,46 @@ public class FinalizedProcessBuilder {
 	}
 
 	/**
-	 * Sets the process builder to keep the process when it is cleaned up via
-	 * the {@code FinalizedProcess#close()} method.
+	 * Tells whether this process builder destroys the subprocess when it is
+	 * closed or not.
+	 * 
 	 * <p>
+	 * If this property is {@code true}, then when the subprocess is closed, the
+	 * subprocess will also be destroyed via {@code Process#destroy()}. This
+	 * prevents the subprocess from continuing to run indefinitely, even after
+	 * there are no longer any references to it in the parent process.
 	 * 
-	 * By default when the {@code FinalizedProcess} is closed the
-	 * {@link Process#destroy()} method will be called. Calling this method
-	 * indicates that the process should not be destroyed when closed.
+	 * <p>
+	 * If this property is {@code false}, then the subprocess will not be
+	 * automatically destroyed when {@code FinalizedProcess#close()} is called.
+	 * This is useful if the subprocess should continue running indefinitely.
 	 * 
+	 * @return this process builder's {@code keepProcess} property
+	 */
+	public boolean keepProcess() {
+		return keepProcess;
+	}
+
+	/**
+	 * Sets this process builder's {@code keepProcess} property.
+	 * 
+	 * <p>
+	 * If this property is {@code true}, then when the subprocess is closed, the
+	 * subprocess will also be destroyed via {@code Process#destroy()}. This
+	 * prevents the subprocess from continuing to run indefinitely, even after
+	 * there are no longer any references to it in the parent process.
+	 * 
+	 * <p>
+	 * If this property is {@code false}, then the subprocess will not be
+	 * automatically destroyed when {@code FinalizedProcess#close()} is called.
+	 * This is useful if the subprocess should continue running indefinitely.
+	 * 
+	 * @param keepProcess
+	 *            the new property value
 	 * @return this process builder
 	 */
-	public FinalizedProcessBuilder keepProcess() {
-		keepProcess = true;
+	public FinalizedProcessBuilder keepProcess(boolean keepProcess) {
+		this.keepProcess = keepProcess;
 		return this;
 	}
 
@@ -396,5 +422,4 @@ public class FinalizedProcessBuilder {
 		Process process = processBuilder.start();
 		return new FinalizedProcess(process, keepProcess);
 	}
-
 }
