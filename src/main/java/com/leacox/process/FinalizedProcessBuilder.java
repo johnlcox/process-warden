@@ -105,14 +105,8 @@ public class FinalizedProcessBuilder {
 	 * 
 	 * @param command
 	 *            a string array containing the program and its arguments
-	 *            (cannot be null)
-	 * @throws NullPointerException
-	 *             if command is null
 	 */
 	public FinalizedProcessBuilder(String... command) {
-		if (command == null) {
-			throw new NullPointerException("command: null");
-		}
 		this.processBuilder = new ProcessBuilder(command);
 	}
 
@@ -138,11 +132,13 @@ public class FinalizedProcessBuilder {
 	 *            the list containing the program and its arguments (cannot be
 	 *            null)
 	 * @return this process builder
-	 * 
 	 * @throws NullPointerException
 	 *             if the command is null
 	 */
 	public FinalizedProcessBuilder command(List<String> command) {
+		if (command == null) {
+			throw new NullPointerException();
+		}
 		processBuilder.command(command);
 		return this;
 	}
@@ -156,15 +152,9 @@ public class FinalizedProcessBuilder {
 	 * 
 	 * @param command
 	 *            a string array containing the program and its arguments
-	 *            (cannot be null)
 	 * @return this process builder
-	 * @throws NullPointerException
-	 *             if command is null
 	 */
 	public FinalizedProcessBuilder command(String... command) {
-		if (command == null) {
-			throw new IllegalArgumentException("command: null");
-		}
 		processBuilder.command(command);
 		return this;
 	}
