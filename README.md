@@ -1,5 +1,6 @@
-process-warden
-==============
+# process-warden
+
+[![Build Status](https://travis-ci.org/johnlcox/process-warden.png)](https://travis-ci.org/johnlcox/process-warden)
 
 process-warden provide a safer wrapper around the built in Java Process and ProcessBuilder classes for executing native subprocesses.  Here is a simple example with Java 6:
 
