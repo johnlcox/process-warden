@@ -180,7 +180,20 @@ public class FinalizedProcessTest {
 	}
 
 	@Test
-	public void testCloseClosesStreamsAndDestroysProcess() throws IOException, InterruptedException {
+	public void testCloseDoesNotTryToCloseNullStreams() throws IOException {
+		Process mockProcess = mock(Process.class);
+		when(mockProcess.getInputStream()).thenReturn(null);
+		when(mockProcess.getErrorStream()).thenReturn(null);
+		when(mockProcess.getOutputStream()).thenReturn(null);
+
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, false);
+		fp.close();
+
+		verify(mockProcess).destroy();
+	}
+
+	@Test
+	public void testCloseClosesStreamsAndDestroysProcess() throws IOException {
 		InputStream mockInputStream = mock(InputStream.class);
 		InputStream mockErrorStream = mock(InputStream.class);
 		OutputStream mockOutputStream = mock(OutputStream.class);
@@ -200,7 +213,7 @@ public class FinalizedProcessTest {
 	}
 
 	@Test
-	public void testCloseDoesNotDestroyProcessWithKeepProcessFlag() throws IOException, InterruptedException {
+	public void testCloseDoesNotDestroyProcessWithKeepProcessFlag() throws IOException {
 		InputStream mockInputStream = mock(InputStream.class);
 		InputStream mockErrorStream = mock(InputStream.class);
 		OutputStream mockOutputStream = mock(OutputStream.class);

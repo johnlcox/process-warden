@@ -130,4 +130,19 @@ public class FinalizedProcessBuilderTest {
 
 		assertTrue(pb.redirectErrorStream());
 	}
+
+	@Test
+	public void testKeepProcessDefaultIsFalse() {
+		FinalizedProcessBuilder pb = new FinalizedProcessBuilder();
+
+		assertFalse(pb.keepProcess());
+	}
+
+	@Test
+	public void testKeepProcessSetTrue() {
+		FinalizedProcessBuilder pb = new FinalizedProcessBuilder();
+		pb.keepProcess(true);
+
+		assertTrue(pb.keepProcess());
+	}
 }
