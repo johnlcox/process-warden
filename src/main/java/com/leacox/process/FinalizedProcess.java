@@ -28,7 +28,7 @@ import java.util.TimerTask;
  * 
  * <p>
  * This wrapper provides some additional functionality around {@code Process}
- * for some of the gotchas and common pitfalls with using {@code Process}.
+ * for some of the common pitfalls with using {@code Process} directly.
  * 
  * <ul>
  * 
@@ -42,7 +42,7 @@ import java.util.TimerTask;
  * takes longer than the timeout, then the thread is interrupted. This method
  * also makes sure that the thread interrupt flag is cleared</li>
  * 
- * </ul
+ * </ul>
  * 
  * <p>
  * Here is a basic example of using this class:
@@ -55,7 +55,7 @@ import java.util.TimerTask;
  * 	int returnVal = process.waitFor(5000);
  * } finally {
  * 	process.close();
- * }
+ * }}
  * </pre>
  * 
  * <p>
@@ -66,7 +66,7 @@ import java.util.TimerTask;
  * FinalizedProcessBuilder pb = new FinalizedProcessBuilder("myCommand", "myArg");
  * try (FinalizedProcess process = pb.start()) {
  * 	int returnVal = process.waitFor(5000);
- * }
+ * }}
  * </pre>
  * 
  * @author John Leacox

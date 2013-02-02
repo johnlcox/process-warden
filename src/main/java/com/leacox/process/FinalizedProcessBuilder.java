@@ -26,9 +26,9 @@ import java.util.Map;
  * processes using the safer {@link FinalizedProcess}.
  * 
  * <p>
- * Like {@code ProcessBuilder}, each @{code FinalizedProcessBuilder} instances
+ * Like {@code ProcessBuilder}, each {@code FinalizedProcessBuilder} instance
  * manages a collection of process attributes. The {@link #start()} method
- * creates a new {@link FinalizedProcess} instance with this attributes. The
+ * creates a new {@link FinalizedProcess} instance with these attributes. The
  * {@link #start()} method can be invoked multiple times from the same instance
  * to create new subprocesses with identical or related attributes.
  * 
@@ -53,6 +53,7 @@ import java.util.Map;
  * {@code FinalizedProcess process = new ProcessBuilder("myCommand", "myArg").start();}
  * </pre>
  * 
+ * <p>
  * Here is an example that redirects standard error to standard output and does
  * not destroy the process when the process is closed:
  * 
@@ -65,11 +66,8 @@ import java.util.Map;
  * }
  * </pre>
  * 
- * Note: For additional documentation see {@link ProcessBuilder}.
- * <p>
- * 
  * @author John Leacox
- * 
+ * @see ProcessBuilder
  */
 public class FinalizedProcessBuilder {
 	private final ProcessBuilder processBuilder;
@@ -187,8 +185,8 @@ public class FinalizedProcessBuilder {
 	 *            the new working directory
 	 * @return this process builder
 	 */
-	public FinalizedProcessBuilder directory(File file) {
-		processBuilder.directory(file);
+	public FinalizedProcessBuilder directory(File directory) {
+		processBuilder.directory(directory);
 		return this;
 	}
 
@@ -394,9 +392,9 @@ public class FinalizedProcessBuilder {
 	 * 
 	 * @return a new {@link FinalizedProcess} object for managing the subprocess
 	 * @throws NullPointerException
-	 *             if an element of the command list is null *
+	 *             if an element of the command list is null
 	 * @throws IndexOutOfBoundsException
-	 *             if the command is an empty list (has size {@code 0}) *
+	 *             if the command is an empty list (has size {@code 0})
 	 * @throws SecurityException
 	 *             if a security manager exists and
 	 *             <ul>
