@@ -4,7 +4,34 @@
 	<groupId>com.leacox.process</groupId>
 	<artifactId>process-warden</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>Process Warden - Finalized Process</name>
+	<description>A wrapper for Process/ProcessBuilder that helps to avoid some of the pitfalls of using them directly.</description>
+	<url>https://github.com/johnlcox/process-warden</url>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<connection>scm:git:git://github.com/johnlcox/process-warden.git</connection>
+		<developerConnection>scm:git:git@github.com:johnlcox/process-warden.git</developerConnection>
+		<url>https://github.com/johnlcox/process-warden</url>
+	</scm>
+	<developers>
+		<developer>
+			<id>john</id>
+			<name>John Leacox</name>
+			<url>http://john.leacox.com</url>
+		</developer>
+	</developers>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.6</java.version>
