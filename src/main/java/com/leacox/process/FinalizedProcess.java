@@ -187,7 +187,7 @@ public class FinalizedProcess implements Closeable {
 	 *             if the subprocess execution times out or the current thread
 	 *             is interrupted by another thread while it is waiting.
 	 */
-	public int waitFor(int timeoutMilliseconds) throws InterruptedException {
+	public int waitFor(long timeoutMilliseconds) throws InterruptedException {
 		if (timeoutMilliseconds <= 0) {
 			throw new IllegalArgumentException("timeoutMilliseconds: <= 0");
 		}
