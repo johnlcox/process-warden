@@ -192,9 +192,8 @@ public class FinalizedProcess implements Closeable {
 			throw new IllegalArgumentException("timeoutMilliseconds: <= 0");
 		}
 
-		Timer timer = null;
+		Timer timer = new Timer(true);
 		try {
-			timer = new Timer(true);
 			InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
 			timer.schedule(interrupter, timeoutMilliseconds);
 			return process.waitFor();
