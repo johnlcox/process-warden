@@ -26,6 +26,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 import org.omg.CORBA.portable.OutputStream;
@@ -40,14 +43,14 @@ public class FinalizedProcessTest {
 	@SuppressWarnings("resource")
 	@Test(expected = NullPointerException.class)
 	public void testConstructorThrowsNullPointerExceptionForNullProcess() {
-		new FinalizedProcess((Process) null, false);
+		new FinalizedProcess((Process) null, false, Collections.<StreamGobbler> emptySet());
 	}
 
 	@Test
 	public void testDestroy() throws IOException {
 		Process mockProcess = mock(Process.class);
 		@SuppressWarnings("resource")
-		FinalizedProcess fp = new FinalizedProcess(mockProcess, true);
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, true, Collections.<StreamGobbler> emptySet());
 		fp.destroy();
 
 		verify(mockProcess).destroy();
@@ -83,7 +86,7 @@ public class FinalizedProcessTest {
 	public void testGetInputStream() {
 		Process mockProcess = mock(Process.class);
 		@SuppressWarnings("resource")
-		FinalizedProcess fp = new FinalizedProcess(mockProcess, true);
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, true, Collections.<StreamGobbler> emptySet());
 		fp.getInputStream();
 
 		verify(mockProcess).getInputStream();
@@ -93,7 +96,7 @@ public class FinalizedProcessTest {
 	public void testGetErrorStream() {
 		Process mockProcess = mock(Process.class);
 		@SuppressWarnings("resource")
-		FinalizedProcess fp = new FinalizedProcess(mockProcess, true);
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, true, Collections.<StreamGobbler> emptySet());
 		fp.getErrorStream();
 
 		verify(mockProcess).getErrorStream();
@@ -103,7 +106,7 @@ public class FinalizedProcessTest {
 	public void testGetOutputStream() {
 		Process mockProcess = mock(Process.class);
 		@SuppressWarnings("resource")
-		FinalizedProcess fp = new FinalizedProcess(mockProcess, true);
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, true, Collections.<StreamGobbler> emptySet());
 		fp.getOutputStream();
 
 		verify(mockProcess).getOutputStream();
@@ -186,7 +189,7 @@ public class FinalizedProcessTest {
 		when(mockProcess.getErrorStream()).thenReturn(null);
 		when(mockProcess.getOutputStream()).thenReturn(null);
 
-		FinalizedProcess fp = new FinalizedProcess(mockProcess, false);
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, false, Collections.<StreamGobbler> emptySet());
 		fp.close();
 
 		verify(mockProcess).destroy();
@@ -203,7 +206,7 @@ public class FinalizedProcessTest {
 		when(mockProcess.getErrorStream()).thenReturn(mockErrorStream);
 		when(mockProcess.getOutputStream()).thenReturn(mockOutputStream);
 
-		FinalizedProcess fp = new FinalizedProcess(mockProcess, false);
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, false, Collections.<StreamGobbler> emptySet());
 		fp.close();
 
 		verify(mockInputStream).close();
@@ -223,12 +226,37 @@ public class FinalizedProcessTest {
 		when(mockProcess.getErrorStream()).thenReturn(mockErrorStream);
 		when(mockProcess.getOutputStream()).thenReturn(mockOutputStream);
 
-		FinalizedProcess fp = new FinalizedProcess(mockProcess, true);
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, true, Collections.<StreamGobbler> emptySet());
 		fp.close();
 
 		verify(mockInputStream).close();
 		verify(mockErrorStream).close();
 		verify(mockOutputStream).close();
 		verify(mockProcess, never()).destroy();
+	}
+
+	@Test
+	public void testCloseClosesStreamGobblers() throws IOException {
+		InputStream mockInputStream = mock(InputStream.class);
+		InputStream mockErrorStream = mock(InputStream.class);
+		OutputStream mockOutputStream = mock(OutputStream.class);
+
+		Process mockProcess = mock(Process.class);
+		when(mockProcess.getInputStream()).thenReturn(mockInputStream);
+		when(mockProcess.getErrorStream()).thenReturn(mockErrorStream);
+		when(mockProcess.getOutputStream()).thenReturn(mockOutputStream);
+
+		StreamGobbler inputGobbler = mock(StreamGobbler.class);
+		StreamGobbler errorGobbler = mock(StreamGobbler.class);
+
+		Set<StreamGobbler> gobblers = new HashSet<StreamGobbler>();
+		gobblers.add(inputGobbler);
+		gobblers.add(errorGobbler);
+
+		FinalizedProcess fp = new FinalizedProcess(mockProcess, true, gobblers);
+		fp.close();
+
+		verify(inputGobbler).close();
+		verify(errorGobbler).close();
 	}
 }
