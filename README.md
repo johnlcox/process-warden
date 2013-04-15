@@ -25,6 +25,15 @@ try (FinalizedProcess process = pb.start()) {
 }
 ```
 
+Now With Stream Gobbling.  The StreamGobbler will gobble up the input stream, error stream, or both in a separate thread to prevent from blocking your thread.
+```java
+FinalizedProcessBuilder pb = new FinalizedProcessBuilder("myCommand", "myArg");
+pb.gobbleStreams(true);
+try (FinalizedProcess process = pb.start()) {
+  int returnVal = process.waitFor(5000);
+}
+```
+
 ## Installation
 
 Add it as a maven dependency:
